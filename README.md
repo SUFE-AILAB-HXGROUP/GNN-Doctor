@@ -1,8 +1,6 @@
 # GNN-Doctor
 Privacy Risk Assessment of Graph Neural Networks
 
-# GCL-Privacy-Risk Project
-## Systematically Evaluation of Privacy Leakage of Graph Contrastive Learning Models
 **1. Inference Attacks against GCL Models:**
 * Attribute / Property Inference Attack
 * Membership Inference Attack

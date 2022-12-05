@@ -6,7 +6,7 @@ Privacy Risk Assessment of Graph Neural Networks.
 * Attribute Inference Attack
 * Link Inference Attack
 * Membership Inference Attack
-* Model Inversion Attack
+* Model Inversion Attack (Reconstruction Attack)
 * Property Inference Attack
 * Reconstruction Attack
 * Subgraph Inference Attack
@@ -41,11 +41,9 @@ Privacy Risk Assessment of Graph Neural Networks.
 * (2021 ICDM) Adapting membership inference attacks to GNN for graph classification: Approaches and implications
 * (2021 IEEE TPS) Membership Inference Attack on Graph Neural Networks
 
-***Model Inversion Attacks***
-* (2022 TKDE) Model Inversion Attacks against Graph Neural Networks
-
 ***Reconstruction Attacks***
 * (2021 IJCAI) GraphMI: Extracting Private Graph Data from Graph Neural Networks
+* (2022 TKDE) Model Inversion Attacks against Graph Neural Networks (same as GraphMI)
 * (2022 CCS) Reviving Memories of Node Embeddings
 
 ***Property/Reconstruction/Subgraph Inference Attacks (graph-level)***

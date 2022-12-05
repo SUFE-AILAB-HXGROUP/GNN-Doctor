@@ -3,10 +3,13 @@ Privacy Risk Assessment of Graph Neural Networks.
 <hr>
 
 ## **1. Inference Attacks against GNN Models (Privacy)**
+***Node-level***
 * Attribute Inference Attack
 * Link Inference Attack
 * Membership Inference Attack
 * Model Inversion Attack (Reconstruction Attack)
+***Graph-level***
+* Membership Inference Attack
 * Property Inference Attack
 * Reconstruction Attack
 * Subgraph Inference Attack

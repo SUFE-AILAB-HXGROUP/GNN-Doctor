@@ -9,7 +9,7 @@ Privacy Risk Assessment of Graph Neural Networks.
 * Model Inversion Attack
 * Property Inference Attack
 * Reconstruction Attack
-* Subgraph Inference Attack (to be determined)
+* Subgraph Inference Attack
 
 ## **2. Adversarial Attacks against GNN Models (Robustness)**
 * Poisoning Attack

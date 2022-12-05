@@ -35,6 +35,7 @@ Privacy Risk Assessment of Graph Neural Networks.
 * (2021 WWW) Graph Embedding for Recommendation against Attribute Inference Attacks
 * (2021 TKDE) Netfense: Adversarial defenses against privacy attacks on neural networks for graph data
 * (2021 ICML) Information obfuscation of graph neural networks
+* (2021 AAAI) Personalized privacy protection in social networks through adversarial modeling
 
 ***Link Inference Attacks***
 * (2021 USENIX) Steal Links from Graph Neural Networks

@@ -45,6 +45,8 @@ Privacy Risk Assessment of Graph Neural Networks.
 * (2021 arXiv) Node-Level Membership Inference Attacks against Graph Neural Networks
 * (2021 ICDM) Adapting membership inference attacks to GNN for graph classification: Approaches and implications
 * (2021 IEEE TPS) Membership Inference Attack on Graph Neural Networks
+* (2022 SSDBM) How Powerful are Membership Inference Attacks on Graph Neural Networks?
+* (2022 International Journal of Information Security) Defense against membership inference attack in graph neural networks through graph perturbation
 
 ***Reconstruction Attacks***
 * (2021 IJCAI) GraphMI: Extracting Private Graph Data from Graph Neural Networks

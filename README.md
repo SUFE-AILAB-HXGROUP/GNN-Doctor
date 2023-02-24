@@ -54,9 +54,15 @@ Privacy Risk Assessment of Graph Neural Networks.
 * (2022 CCS) Reviving Memories of Node Embeddings
 
 ***Property/Reconstruction/Subgraph Inference Attacks (graph-level)***
+
 * (2022 USENIX) Inference Attacks Against Graph Neural Networks
 
+***Property Inference Attack***
+
+- (2022 CCS) Group Property Inference Attacks Against Graph Neural Networks
+
 ***Holistic Privacy Risk Assessment***
+
 * (2020 MobiQuitous) Quantifying Privacy Leakage in Graph Embedding
 * (2021 CCS) Quantifying and Mitigating Privacy Risks in Contrastive Learning
 * (2022 USENIX) ML-DOCTOR: Holistic Risk Assessment of Inference Attacks Against Machine Learning Models

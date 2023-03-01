@@ -2,7 +2,20 @@
 Privacy Risk Assessment of Graph Neural Networks.
 <hr>
 
+## Node Embedding Publishing:
+
+:heavy_check_mark:Link Inference Attacks
+:heavy_check_mark:Node Attribute Inference Attacks
+:heavy_check_mark:Membership Inference Attacks based on Downstream Classification Outputs (expected by March 5)
+
+## Black-box to GNNs:
+:heavy_check_mark: Link Inference Attacks
+:x: Attribute Inference Attacks
+:x: Membership Inference Attacks
+:x: Property Inference Attacks
+
 ## **1. Inference Attacks against GNN Models (Privacy)**
+
 ***Node-level***
 * Attribute Inference Attack
 * Link Inference Attack

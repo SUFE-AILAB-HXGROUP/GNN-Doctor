@@ -1,6 +1,6 @@
 **2023/2/24**
 
-- Upload codes of link inference attacks and node attribute inference attack.
+- Upload codes of embedding-based link inference attacks and node attribute inference attack.
 
 
 **2023/3/1**

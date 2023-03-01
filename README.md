@@ -43,8 +43,8 @@ Privacy Risk Assessment of Graph Neural Networks.
 
 ***Membership Inference Attacks***
 * (2021 arXiv) Node-Level Membership Inference Attacks against Graph Neural Networks
-* (2021 ICDM) Adapting membership inference attacks to GNN for graph classification: Approaches and implications
 * (2021 IEEE TPS-ISA) Membership Inference Attack on Graph Neural Networks
+* (2021 ICDM) Adapting membership inference attacks to GNN for graph classification: Approaches and implications
 * (2022 SSDBM) How Powerful are Membership Inference Attacks on Graph Neural Networks?
 * (2022 International Journal of Information Security) Defense against membership inference attack in graph neural networks through graph perturbation
 
@@ -60,6 +60,12 @@ Privacy Risk Assessment of Graph Neural Networks.
 ***Property Inference Attack***
 
 - (2022 CCS) Group Property Inference Attacks Against Graph Neural Networks
+
+***Differential Privacy***
+
+- (2018 PAKDD) DPNE: Differentially Private Network Embedding
+- (2022 S&P) LinkTeller: Recovering private edges from graph neural networks via influence analysis
+- (2023 USENIX) GAP: Differentially Private Graph Neural Networks with Aggregation Perturbation
 
 ***Holistic Privacy Risk Assessment***
 

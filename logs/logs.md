@@ -1,8 +1,11 @@
-2023/2/24
+**2023/2/24**
 
-Upload codes of link inference attacks and node attribute inference attack.
+- Upload codes of link inference attacks and node attribute inference attack.
 
-2023/3/1
 
-Upload DPNE code.
+**2023/3/1**
+
+- Upload DPNE code.
+- Upload DP-GCN code.
+- Upload PAGCL code (partial, to be modified).
 

@@ -66,6 +66,7 @@ Privacy Risk Assessment of Graph Neural Networks.
 * (2022 SSDBM) How Powerful are Membership Inference Attacks on Graph Neural Networks?
 * (2022 International Journal of Information Security) Defense against membership inference attack in graph neural networks through graph perturbation
 * (2022 AI'Sec) Label-Only Membership Inference Attack against Node-Level Graph Neural Networks
+* (2022 CCS) Membership Inference Attacks Against Robust Graph Neural Network
 
 ***Reconstruction Attacks***
 * (2021 IJCAI) GraphMI: Extracting Private Graph Data from Graph Neural Networks

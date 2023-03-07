@@ -8,14 +8,14 @@ Privacy Risk Assessment of Graph Neural Networks.
 
 :heavy_check_mark:Node Attribute Inference Attacks
 
-:heavy_check_mark:Membership Inference Attacks based on Downstream Classification Outputs (expected by March 5)
+:heavy_check_mark:Membership Inference Attacks based on Downstream Classification Outputs
 
 ## Black-box Access to GNNs:
 :play_or_pause_button: Link Inference Attacks (to do)
 
 :x: Attribute Inference Attacks
 
-:play_or_pause_button: Membership Inference Attacks (TSTF setting completed, TSTS setting to be completed)
+ :heavy_check_mark:Membership Inference Attacks (TSTF and TSTS setting)
 
 :x: Property Inference Attacks
 
@@ -35,7 +35,7 @@ Privacy Risk Assessment of Graph Neural Networks.
 
 ## **2. Adversarial Attacks against GNN Models (Robustness)**
 * Poisoning Attack
-* Evastion Attack
+* Evasion Attack
 * Backdoor Attack
 
 ## **3. Fairness**

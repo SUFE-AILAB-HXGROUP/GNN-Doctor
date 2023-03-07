@@ -8,7 +8,7 @@ from torch_geometric.data import Data
 from sklearn.metrics import f1_score, roc_auc_score, precision_score, recall_score
 
 
-def get_inductive_split(data, num_classes, num_train_Train_per_class,
+def get_inductive_split(mode, data, num_classes, num_train_Train_per_class,
                         num_train_Shadow_per_class, num_test_Target, num_test_Shadow):
     label_idx = data.y.numpy().tolist()
     print("label_idx", len(label_idx))
@@ -58,6 +58,15 @@ def get_inductive_split(data, num_classes, num_train_Train_per_class,
     shadow_y_inductive = data.y[shadow_train_idx]
     shadow_edge_index_inductive, _ = subgraph(shadow_train_idx, data.edge_index)
 
+    if mode == 'TSTS':
+        target_x_test_inductive = data.x[target_test_idx]
+        target_y_test_inductive = data.y[target_test_idx]
+        target_test_edge_index_inductive, _ = subgraph(target_test_idx, data.edge_index)
+
+        shadow_x_test_inductive = data.x[shadow_test_idx]
+        shadow_y_test_inductive = data.y[shadow_test_idx]
+        shadow_test_edge_index_inductive, _ = subgraph(shadow_test_idx, data.edge_index)
+
     target_vertex_map = {}
     ind = -1
     for i in range(data.num_nodes):
@@ -79,14 +88,46 @@ def get_inductive_split(data, num_classes, num_train_Train_per_class,
         shadow_edge_index_inductive[0, i] = shadow_vertex_map[shadow_edge_index_inductive[0, i].tolist()]
         shadow_edge_index_inductive[1, i] = shadow_vertex_map[shadow_edge_index_inductive[1, i].tolist()]
 
+    if mode == 'TSTS':
+        target_test_vertex_map = {}
+        ind = -1
+        for i in range(data.num_nodes):
+            if i in target_test_idx:
+                ind += 1
+                target_test_vertex_map[i] = ind
+        for i in range(target_test_edge_index_inductive.shape[1]):
+            target_test_edge_index_inductive[0, i] = target_test_vertex_map[target_test_edge_index_inductive[0, i].tolist()]
+            target_test_edge_index_inductive[1, i] = target_test_vertex_map[target_test_edge_index_inductive[1, i].tolist()]
+
+        shadow_test_vertex_map = {}
+        ind = -1
+        for i in range(data.num_nodes):
+            if i in shadow_test_idx:
+                ind += 1
+                shadow_test_vertex_map[i] = ind
+        for i in range(shadow_test_edge_index_inductive.shape[1]):
+            shadow_test_edge_index_inductive[0, i] = shadow_test_vertex_map[shadow_test_edge_index_inductive[0, i].tolist()]
+            shadow_test_edge_index_inductive[1, i] = shadow_test_vertex_map[shadow_test_edge_index_inductive[1, i].tolist()]
+
     all_x = data.x
     all_y = data.y
     all_edge_index = data.edge_index
 
-    data = Data(target_x=target_x_inductive, target_edge_index=target_edge_index_inductive, target_y=target_y_inductive,
-                shadow_x=shadow_x_inductive, shadow_edge_index=shadow_edge_index_inductive, shadow_y=shadow_y_inductive,
-                target_train_mask=target_train_mask, shadow_train_mask=shadow_train_mask, all_x=all_x, all_y=all_y,
-                all_edge_index=all_edge_index, target_test_mask=target_test_mask, shadow_test_mask=shadow_test_mask)
+    if mode == 'TSTS':
+        data = Data(target_x=target_x_inductive, target_edge_index=target_edge_index_inductive,
+                    target_y=target_y_inductive, target_test_x=target_x_test_inductive,
+                    target_test_edge_index=target_test_edge_index_inductive, target_test_y=target_y_test_inductive,
+                    shadow_x=shadow_x_inductive, shadow_edge_index=shadow_edge_index_inductive,
+                    shadow_y=shadow_y_inductive, shadow_test_x=shadow_x_test_inductive,
+                    shadow_test_edge_index=shadow_test_edge_index_inductive, shadow_test_y=shadow_y_test_inductive,
+                    target_train_mask=target_train_mask, shadow_train_mask=shadow_train_mask, all_x=all_x,
+                    all_edge_index=all_edge_index, all_y=all_y, target_test_mask=target_test_mask,
+                    shadow_test_mask=shadow_test_mask)
+    else:
+        data = Data(target_x=target_x_inductive, target_edge_index=target_edge_index_inductive, target_y=target_y_inductive,
+                    shadow_x=shadow_x_inductive, shadow_edge_index=shadow_edge_index_inductive, shadow_y=shadow_y_inductive,
+                    target_train_mask=target_train_mask, shadow_train_mask=shadow_train_mask, all_x=all_x, all_y=all_y,
+                    all_edge_index=all_edge_index, target_test_mask=target_test_mask, shadow_test_mask=shadow_test_mask)
 
     return data
 
@@ -118,7 +159,7 @@ def train_model(data, model, optimizer, isTarget=True):
     return total_correct, train_loss
 
 
-def test_model(data, model, label_list, device, isTarget=True):
+def test_model(mode, num_test_Target, data, model, label_list, device, isTarget=True):
     save_target_InTrain = 'mia_target_member_posteriors.txt'
     save_target_OutTrain = 'mia_target_non_member_posteriors.txt'
     save_target_InTrain_nodes_neigbors = 'mia_target_member_nodes_neighbors.npy'
@@ -142,41 +183,57 @@ def test_model(data, model, label_list, device, isTarget=True):
         np.save(save_target_InTrain_nodes_neigbors, nodes_and_neighbors)
 
         '''OutTrain Target'''
-        preds, nodes_and_neighbors = model(data.all_x, data.all_edge_index)
-        nodes_and_neighbors = np.array(nodes_and_neighbors, dtype=object)
-        preds = preds[data.target_test_mask]
+        if mode == 'TSTF':
+            preds, nodes_and_neighbors = model(data.all_x, data.all_edge_index)
+            nodes_and_neighbors = np.array(nodes_and_neighbors, dtype=object)
+            preds = preds[data.target_test_mask]
 
-        mask = data.target_test_mask.gt(0)
-        mask = mask.cpu().numpy()
+            mask = data.target_test_mask.gt(0)
+            mask = mask.cpu().numpy()
 
-        nodes_and_neighbors = nodes_and_neighbors[mask]
+            nodes_and_neighbors = nodes_and_neighbors[mask]
 
-        pred_out = preds.max(1)[1].to(device)
-        pred_out_ps = torch.exp(preds)
+            pred_out = preds.max(1)[1].to(device)
+            pred_out_ps = torch.exp(preds)
 
-        incremented_nodes_and_neighbors = []
+            incremented_nodes_and_neighbors = []
 
-        for i in range(len(nodes_and_neighbors)):
-            res = nodes_and_neighbors[i][1]
-            res_0 = nodes_and_neighbors[i][0]
-            incremented_nodes_and_neighbors.append((res_0, res))
+            for i in range(len(nodes_and_neighbors)):
+                res = nodes_and_neighbors[i][1]
+                res_0 = nodes_and_neighbors[i][0]
+                incremented_nodes_and_neighbors.append((res_0, res))
 
-        np.save(save_target_OutTrain_nodes_neigbors, incremented_nodes_and_neighbors)
+            np.save(save_target_OutTrain_nodes_neigbors, incremented_nodes_and_neighbors)
 
-        nodes = []
-        for i in range(0, len(incremented_nodes_and_neighbors)):
-            nodes.append(incremented_nodes_and_neighbors[i][0])
-        nodes = np.array(nodes)
-        preds_and_nodes = np.column_stack((pred_out_ps.cpu().detach().numpy(), nodes))
-        np.savetxt(save_target_OutTrain, preds_and_nodes)
+            nodes = []
+            for i in range(0, len(incremented_nodes_and_neighbors)):
+                nodes.append(incremented_nodes_and_neighbors[i][0])
+            nodes = np.array(nodes)
+            preds_and_nodes = np.column_stack((pred_out_ps.cpu().detach().numpy(), nodes))
+            np.savetxt(save_target_OutTrain, preds_and_nodes)
 
-        pred_labels = pred_out.tolist()
-        true_labels = data.all_y[data.target_test_mask].tolist()
+            pred_labels = pred_out.tolist()
+            true_labels = data.all_y[data.target_test_mask].tolist()
 
-        # The train accuracy is not on the full graph. It's similar to approx_train_acc
-        train_acc = get_train_acc(data, pred_Intrain)
-        # Test n val are on full graph
-        test_acc = get_test_acc(data, pred_out)
+            # The train accuracy is not on the full graph. It's similar to approx_train_acc
+            train_acc = get_train_acc(data, pred_Intrain)
+            # Test n val are on full graph
+            test_acc = get_test_acc(data, pred_out)
+        else:
+            preds, nodes_and_neighbors = model(data.target_test_x, data.target_test_edge_index)
+            pred_out = pred.max(1)[1].to(device)
+            pred_out_ps = torch.exp(preds)
+            np.savetxt(save_target_OutTrain, pred_out_ps.cpu().detach().numpy())
+            incremented_nodes_and_neighbors = []
+            for i in range(len(nodes_and_neighbors)):
+                res = [x + num_test_Target for x in nodes_and_neighbors[i][1]]
+                res_0 = nodes_and_neighbors[i][0] + num_test_Target
+                incremented_nodes_and_neighbors.append((res_0, res))
+            np.save(save_target_OutTrain_nodes_neigbors, incremented_nodes_and_neighbors)
+            pred_labels = pred_out.tolist()
+            true_labels = data.target_test_y.tolist()
+            train_acc = get_train_acc(data, pred_Intrain)
+            test_acc = get_test_acc(data, pred_out)
 
     else:
 
@@ -188,27 +245,41 @@ def test_model(data, model, label_list, device, isTarget=True):
         np.savetxt(save_shadow_InTrain, pred_Intrain_ps.cpu().detach().numpy())
 
         '''OutTrain Shadow'''
-        preds, nodes_and_neighbors = model(data.all_x, data.all_edge_index)
-        nodes_and_neighbors = np.array(nodes_and_neighbors, dtype=object)
+        if mode == 'TSTF':
+            preds, nodes_and_neighbors = model(data.all_x, data.all_edge_index)
+            nodes_and_neighbors = np.array(nodes_and_neighbors, dtype=object)
 
-        preds = preds[data.shadow_test_mask]
+            preds = preds[data.shadow_test_mask]
 
-        mask = data.shadow_test_mask.gt(0)  # trick to
-        mask = mask.cpu().numpy()
+            mask = data.shadow_test_mask.gt(0)  # trick to
+            mask = mask.cpu().numpy()
 
-        nodes_and_neighbors = nodes_and_neighbors[mask]
+            nodes_and_neighbors = nodes_and_neighbors[mask]
 
-        pred_out = preds.max(1)[1].to(device)
-        pred_out_ps = torch.exp(preds)
-        np.savetxt(save_shadow_OutTrain, pred_out_ps.cpu().detach().numpy())
+            pred_out = preds.max(1)[1].to(device)
+            pred_out_ps = torch.exp(preds)
+            np.savetxt(save_shadow_OutTrain, pred_out_ps.cpu().detach().numpy())
 
-        pred_labels = pred_out.tolist()
-        true_labels = data.all_y[data.shadow_test_mask].tolist()
+            pred_labels = pred_out.tolist()
+            true_labels = data.all_y[data.shadow_test_mask].tolist()
 
-        # The train accuracy is not on the full graph. It's similar to approx_train_acc
-        train_acc = get_train_acc(data, pred_Intrain, False)
-        # Test n val are on full graph
-        test_acc = get_test_acc(data, pred_out, False)
+            # The train accuracy is not on the full graph. It's similar to approx_train_acc
+            train_acc = get_train_acc(data, pred_Intrain, False)
+            # Test n val are on full graph
+            test_acc = get_test_acc(data, pred_out, False)
+        else:
+            preds, nodes_and_neighbors = model(data.shadow_test_x, data.shadow_test_edge_index)
+            pred_out = preds.max(1)[1].to(device)
+            pred_out_ps = torch.exp(preds)
+            np.savetxt(save_shadow_OutTrain, pred_out_ps.cpu().detach().numpy())
+
+            pred_labels = pred_out.tolist()
+            true_labels = data.shadow_test_y.tolist()
+
+            # The train accuracy is not on the full graph. It's similar to approx_train_acc
+            train_acc = get_train_acc(data, pred_Intrain, False)
+            # Test n val are on full graph
+            test_acc = get_test_acc(data, pred_out, False)
 
     # pred_Intrain = model(data_new.all_x,data_new.all_edge_index)[data_new.target_train_mask].max(1)[1]
     # # Actual probabilities
@@ -217,10 +288,12 @@ def test_model(data, model, label_list, device, isTarget=True):
     # print("posteriors", pred_Intrain)
 
     # The f1 measures are on test dataset
+
     f1_marco = get_marco_f1(data, pred_labels, true_labels, label_list)
     f1_micro = get_micro_f1(data, pred_labels, true_labels, label_list)
 
     return train_acc, test_acc, f1_marco, f1_micro
+
 
 def get_train_acc(data, pred, isTarget=True):
     if isTarget:
@@ -234,6 +307,7 @@ def get_train_acc(data, pred, isTarget=True):
     # train_acc = pred.eq(data_new.all_y[data_new.target_train_mask]).sum().item() / data_new.target_train_mask.sum().item()
     return train_acc
 
+
 def get_test_acc(data, pred, isTarget=True):
     if isTarget:
         test_acc = pred.eq(
@@ -243,10 +317,12 @@ def get_test_acc(data, pred, isTarget=True):
             data.all_y[data.shadow_test_mask]).sum().item() / data.shadow_test_mask.sum().item()
     return test_acc
 
+
 def get_marco_f1(data_new, pred_labels, true_labels, label_list):
     # f1_marco = f1_score(true_labels,pred_labels,label_list,average='macro')
     f1_marco = f1_score(true_labels, pred_labels, average='macro')
     return f1_marco
+
 
 def get_micro_f1(data_new, pred_labels, true_labels, label_list):
     # f1_micro = f1_score(true_labels,pred_labels,label_list,average='micro')

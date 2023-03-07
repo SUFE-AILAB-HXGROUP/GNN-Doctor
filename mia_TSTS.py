@@ -18,7 +18,7 @@ runs = 2
 target_model_name = "GCN"
 shadow_model_name = "GCN"
 dataset_name = "Cora"
-attack_mode = "TSTF"
+attack_mode = "TSTS"
 
 
 class TargetModel(torch.nn.Module):
@@ -33,8 +33,11 @@ class TargetModel(torch.nn.Module):
     def forward(self, x, edge_index):
         edges_raw = edge_index.cpu().numpy()
         edges = [(x, y) for x, y in zip(edges_raw[0, :], edges_raw[1, :])]
+
         G = nx.Graph()
-        G.add_nodes_from(list(range(data.num_nodes)))
+        ######################################
+        G.add_nodes_from(list(range(num_test_Target)))
+        ######################################
         G.add_edges_from(edges)
 
         all_node_and_neighbors = []
@@ -53,7 +56,7 @@ class TargetModel(torch.nn.Module):
 class ShadowModel(torch.nn.Module):
     def __init__(self, dataset):
         super(ShadowModel, self).__init__()
-        if shadow_model_name == "GCN":
+        if target_model_name == "GCN":
             self.conv1 = GCNConv(dataset.num_node_features, 256)
             self.conv2 = GCNConv(256, dataset.num_classes)
         else:
@@ -62,8 +65,11 @@ class ShadowModel(torch.nn.Module):
     def forward(self, x, edge_index):
         edges_raw = edge_index.cpu().numpy()
         edges = [(x, y) for x, y in zip(edges_raw[0, :], edges_raw[1, :])]
+
         G = nx.Graph()
-        G.add_nodes_from(list(range(data.num_nodes)))
+        ######################################
+        G.add_nodes_from(list(range(num_test_Target)))
+        ######################################
         G.add_edges_from(edges)
 
         all_node_and_neighbors = []
@@ -112,20 +118,18 @@ for which_run in range(1, runs):
     data = dataset[0]
     label_list = [x for x in range(dataset.num_classes)]
     label_idx = data.y.numpy().tolist()
-
-    data_new = get_inductive_split(data, dataset.num_classes, num_train_Train_per_class, num_train_Shadow_per_class,
-                                   num_test_Target, num_test_Shadow)
+    data_new = get_inductive_split(attack_mode, data, dataset.num_classes, num_train_Train_per_class,
+                                   num_train_Shadow_per_class, num_test_Target, num_test_Shadow)
 
     bool_tensor = torch.ones(num_test_Target, dtype=torch.bool)
-    # target_train_idx = torch.nonzero(data_new.target_train_mask).view(-1)
-    # shadow_train_idx = torch.nonzero(data_new.shadow_train_mask).view(-1)
-
     target_train_loader = NeighborSampler(data_new.target_edge_index, node_idx=bool_tensor, sizes=[25, 10],
                                           num_nodes=num_test_Target, batch_size=64, shuffle=False)
+    target_test_loader = NeighborSampler(data_new.target_test_edge_index, node_idx=bool_tensor, sizes=[25, 10],
+                                         num_nodes=num_test_Target, batch_size=64, shuffle=False)
     shadow_train_loader = NeighborSampler(data_new.shadow_edge_index, node_idx=bool_tensor, sizes=[25, 10],
                                           num_nodes=num_test_Shadow, batch_size=64, shuffle=False)
-    all_graph_loader = NeighborSampler(data_new.all_edge_index, node_idx=None, sizes=[-1],
-                                       batch_size=1024, num_nodes=data.num_nodes, shuffle=False)
+    shadow_test_loader = NeighborSampler(data_new.shadow_test_edge_index, node_idx=bool_tensor, sizes=[25, 10],
+                                         num_nodes=num_test_Shadow, batch_size=64, shuffle=False)
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     target_model = TargetModel(dataset).to(device)
@@ -138,20 +142,22 @@ for which_run in range(1, runs):
     model_training_epoch = 301
     # target model training
     # *******************************************************
-    # for epoch in range(1, model_training_epoch):
-    #     approx_train_acc, train_loss = train_model(data_new, target_model, target_optimizer)
-    #     train_acc, test_acc, macro, micro = test_model(data_new, target_model, label_list, device)
-    #     log = 'TargetModel Epoch: {:03d}, Approx Train: {:.4f}, Train: {:.4f}, ' \
-    #           'Test: {:.4f}, marco: {:.4f}, micro: {:.4f}'
-    #     print(log.format(epoch, approx_train_acc, train_acc, test_acc, macro, micro))
-    #
-    # # shadow model training
-    # for epoch in range(1, model_training_epoch):
-    #     approx_train_acc, train_loss = train_model(data_new, shadow_model, shadow_optimizer)
-    #     train_acc, test_acc, macro, micro = test_model(data_new, shadow_model, label_list, device, isTarget=False)
-    #     log = 'ShadowModel Epoch: {:03d}, Approx Train: {:.4f}, Train: {:.4f}, ' \
-    #           'Test: {:.4f}, marco: {:.4f}, micro: {:.4f}'
-    #     print(log.format(epoch, approx_train_acc, train_acc, test_acc, macro, micro))
+    for epoch in range(1, model_training_epoch):
+        approx_train_acc, train_loss = train_model(data_new, target_model, target_optimizer)
+        train_acc, test_acc, macro, micro = test_model(attack_mode, num_test_Target, data_new, target_model,
+                                                       label_list, device)
+        log = 'TargetModel Epoch: {:03d}, Approx Train: {:.4f}, Train: {:.4f}, ' \
+              'Test: {:.4f}, marco: {:.4f}, micro: {:.4f}'
+        print(log.format(epoch, approx_train_acc, train_acc, test_acc, macro, micro))
+
+    # shadow model training
+    for epoch in range(1, model_training_epoch):
+        approx_train_acc, train_loss = train_model(data_new, shadow_model, shadow_optimizer, isTarget=False)
+        train_acc, test_acc, macro, micro = test_model(attack_mode, num_test_Target, data_new, shadow_model,
+                                                       label_list, device, isTarget=False)
+        log = 'ShadowModel Epoch: {:03d}, Approx Train: {:.4f}, Train: {:.4f}, ' \
+              'Test: {:.4f}, marco: {:.4f}, micro: {:.4f}'
+        print(log.format(epoch, approx_train_acc, train_acc, test_acc, macro, micro))
 
     # construct train & test set for attack model
     # attack training data
@@ -166,12 +172,9 @@ for which_run in range(1, runs):
     attack_test_pos = pd.read_csv('mia_target_member_posteriors.txt', header=None, sep=' ')
     attack_test_pos["label"] = 1
     attack_test_pos["nodeId"] = range(0, num_test_Target)
-
     attack_test_neg = pd.read_csv('mia_target_non_member_posteriors.txt', header=None, sep=' ')
-    idxs = [int(i) for i in attack_test_neg.iloc[:, -1]]
-    attack_test_neg = attack_test_neg.iloc[:, :-1]
-    attack_test_neg["nodeId"] = idxs
     attack_test_neg["label"] = 0
+    attack_test_neg["nodeId"] = range(num_test_Target, num_test_Target+num_test_Target)
 
     attack_test_data = pd.concat([attack_test_pos, attack_test_neg])
 
@@ -191,9 +194,11 @@ for which_run in range(1, runs):
     # positive test
     X_attack_test_pos = attack_test_pos.drop(["nodeId", "label"], axis=1).values
     y_attack_test_pos = attack_test_pos["label"].values
+    nodeId_test_pos = attack_test_pos["nodeId"].values
     # negative test
     X_attack_test_neg = attack_test_neg.drop(["nodeId", "label"], axis=1).values
     y_attack_test_neg = attack_test_neg["label"].values
+    nodeId_test_neg = attack_test_neg["nodeId"].values
 
     # leave 50 training samples for evaluation
     attack_train_data_X, attack_test_data_X, attack_train_data_y, attack_test_data_y \

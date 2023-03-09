@@ -18,3 +18,7 @@
 
 - Upload MIA against embedding-based classification model code.
 - Upload MIA (TSTS) code.
+
+**2023/3/9**
+
+- Upload black-box link stealing code (attack-0).

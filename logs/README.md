@@ -22,3 +22,9 @@
 **2023/3/9**
 
 - Upload black-box link stealing code (attack-0).
+
+**2023/3/16**
+
+- Integrate the codes. (Now integrate Link and Attribute Inferences under Embedding Publishing Setting & Link Stealing under Black-box Setting)
+- To be integrated: Membership Inference Attacks
+- To be Implemented: Attribute Inference Attacks under Black-box Setting, Property Inference Attacks, Model Inversion Attacks

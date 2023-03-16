@@ -10,6 +10,8 @@ Privacy Risk Assessment of Graph Neural Networks.
 
 :heavy_check_mark:Membership Inference Attacks based on Downstream Classification Outputs
 
+:x: Model Inversion (Reconstruction)
+
 ## Black-box Access to GNNs:
 :heavy_check_mark: Link Inference Attacks (attack-0)
 
@@ -48,6 +50,7 @@ Privacy Risk Assessment of Graph Neural Networks.
 
 ## **6. References**
 ***Attribute Inference Attacks***
+* (2020 ICLR) Overlearning Reveals Sensitive Attributes
 * (2021 KDD) Privacy-preserving representation learning on graphs: A mutual information perspective
 * (2020 ITJ) Adversarial Privacy Preserving Graph Embedding Against Inference Attack
 * (2021 WWW) Graph Embedding for Recommendation against Attribute Inference Attacks

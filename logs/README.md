@@ -28,3 +28,9 @@
 - Integrate the codes. (Now integrate Link and Attribute Inferences under Embedding Publishing Setting & Link Stealing under Black-box Setting)
 - To be integrated: Membership Inference Attacks
 - To be Implemented: Attribute Inference Attacks under Black-box Setting, Property Inference Attacks, Model Inversion Attacks
+
+**2023/3/22**
+
+- Integrate code: Membership Inference Attacks (node embedding publishing & black-box)
+- To be implemented: attribute inference attacks (black-box) (expected 2022/3/24)
+- To be implemented: model inversion attacks

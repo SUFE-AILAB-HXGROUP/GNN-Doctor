@@ -1,5 +1,6 @@
 from .link_steal import *
 from .link_infer import *
+from .mia_emb import *
 from .attack_models import *
 
 from torch_geometric.utils import to_dense_adj
@@ -12,7 +13,7 @@ def attack_func(dataset, model, setting, attack_method, attack_epoch, device):
     :param setting: attack setting - black box or node emb publish
     :param attack_method: name of attack
     :param attack_epoch: epoch of training attack model
-    :return:
+    :return: None
     """
     if setting == 'node_emb_publish':
         train_data, val_data, test_data = dataset[0]
@@ -43,7 +44,8 @@ def attack_func(dataset, model, setting, attack_method, attack_epoch, device):
             model.eval()
             embs = model.get_emb(train_data.x, train_data.edge_index)
             embs = embs.cpu().numpy()
-            logging.info("To be implemented.")
+            y = train_data.y.cpu().numpy()
+            mia_emb_func(embs, y, device)
 
         elif attack_method == 'model_inver':
             logging.info("To be implemented.")

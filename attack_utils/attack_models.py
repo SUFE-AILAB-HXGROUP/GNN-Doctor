@@ -76,7 +76,6 @@ def log_regression(z,
                    split: str = 'rand:0.1',
                    verbose: bool = False,
                    preload_split=None):
-    test_devices = 'cuda' if torch.cuda.is_available() else 'cpu'
     z = z.to(test_device)
     num_hidden = z.size(1)
     y = data.y.view(-1).to(test_device)

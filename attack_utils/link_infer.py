@@ -1,31 +1,12 @@
+import logging
+
 import numpy as np
 import xgboost as xgb
-from sklearn.metrics import roc_auc_score, pairwise_distances, f1_score, accuracy_score
 from scipy.spatial.distance import cosine, euclidean, correlation, chebyshev, \
     braycurtis, canberra, cityblock, sqeuclidean
+from sklearn.metrics import roc_auc_score, accuracy_score, f1_score
 from sklearn.linear_model import LogisticRegression
-
-from attack_models import train_mlp
-
-
-def hadamard(x, y):
-    return x * y
-
-
-def l1_weight(x, y):
-    return np.absolute(x - y)
-
-
-def l2_weight(x, y):
-    return np.square(x - y)
-
-
-def concate(x, y):
-    return np.concatenate((x, y), axis=1)
-
-
-def average(x, y):
-    return (x + y) / 2
+from .attack_models import train_mlp
 
 
 def sim_attacks(embs, test_edges, label):
@@ -56,6 +37,26 @@ def sim_attacks(embs, test_edges, label):
         auc_list.append(i_auc)
 
     return sim_list_str, auc_list
+
+
+def hadamard(x, y):
+    return x * y
+
+
+def l1_weight(x, y):
+    return np.absolute(x - y)
+
+
+def l2_weight(x, y):
+    return np.square(x - y)
+
+
+def concate(x, y):
+    return np.concatenate((x, y), axis=1)
+
+
+def average(x, y):
+    return (x + y) / 2
 
 
 def ml_attacks(embs, train_edges, train_y, test_edges, test_y):
@@ -97,6 +98,5 @@ def ml_attacks(embs, train_edges, train_y, test_edges, test_y):
             auc = roc_auc_score(test_y, y_pred)
             acc = accuracy_score(test_y, y_pred)
 
-            print(
-                "cls: {}, operation: {}, f1 score: {:.4f}, auc score: {:.4f}, acc: {:.4f}".format(cls_name, op, f1, auc,
-                                                                                                  acc))
+            logging.info("cls: {}, operation: {}, f1 score: {:.4f}, auc score: {:.4f}, "
+                         "acc: {:.4f}".format(cls_name, op, f1, auc, acc))

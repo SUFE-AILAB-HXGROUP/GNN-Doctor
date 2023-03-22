@@ -14,7 +14,7 @@ if __name__ == '__main__':
     parser.add_argument('--setting', type=str, default='black_box',
                         help="black-box GNNs or node embedding publishing")
     parser.add_argument('--dataset', type=str, default='Cora')
-    parser.add_argument('--attack', type=str, default='link_steal')
+    parser.add_argument('--attack', type=str, default='membership_infer')
     parser.add_argument('--seed', type=int, default=42)
     parser.add_argument('--target-model', type=str, default='gcn')
     parser.add_argument('--hidden-dim', type=int, default=128)
@@ -31,7 +31,7 @@ if __name__ == '__main__':
     dataset = load_dataset(args.dataset, args.setting, args.attack)
 
     # Training target model
-    model = target_model_train(dataset, args.setting, args.target_model, args.epoch, device)
+    model = target_model_train(dataset, args.setting, args.attack, args.target_model, args.epoch, device)
 
     # Conducting attack
     attack_func(dataset, model, args.setting, args.attack, args.attack_epoch, device)

@@ -5,7 +5,7 @@ import torch
 from gnns import GCN, UnsupGCN
 
 
-def target_model_train(dataset, setting, target_model, epochs, device):
+def target_model_train(dataset, setting, attack, target_model, epochs, device):
     """
     :param dataset: name of graph dataset
     :param setting: attack setting - black_box or node_emb_publish
@@ -43,37 +43,40 @@ def target_model_train(dataset, setting, target_model, epochs, device):
         return model
 
     elif setting == 'black_box':
-        if target_model == 'gcn':
-            data = dataset[0]
-            data.to(device)
-            model = GCN(input_dim=dataset.num_features, hidden_dim=128, output_dim=dataset.num_classes).to(device)
-            optimizer = torch.optim.Adam([
-                dict(params=model.conv1.parameters(), weight_decay=5e-4),
-                dict(params=model.conv2.parameters(), weight_decay=0)
-            ], lr=0.01)
-            best_val_acc = test_acc = 0
-            for epoch in range(1, epochs + 1):
-                model.train()
-                optimizer.zero_grad()
-                y_pred = model(data)
-                loss = model.compute_loss(y_pred[data.train_mask], data.y[data.train_mask])
-                loss.backward()
-                optimizer.step()
+        if attack == 'membership_infer':
+            return None
+        else:
+            if target_model == 'gcn':
+                data = dataset[0]
+                data.to(device)
+                model = GCN(input_dim=dataset.num_features, hidden_dim=128, output_dim=dataset.num_classes).to(device)
+                optimizer = torch.optim.Adam([
+                    dict(params=model.conv1.parameters(), weight_decay=5e-4),
+                    dict(params=model.conv2.parameters(), weight_decay=0)
+                ], lr=0.01)
+                best_val_acc = test_acc = 0
+                for epoch in range(1, epochs + 1):
+                    model.train()
+                    optimizer.zero_grad()
+                    y_pred = model(data)
+                    loss = model.compute_loss(y_pred[data.train_mask], data.y[data.train_mask])
+                    loss.backward()
+                    optimizer.step()
 
-                model.eval()
-                logits = model(data)
-                accs = []
-                for _, mask in data('train_mask', 'val_mask', 'test_mask'):
-                    acc = model.test_model(logits, data.y, mask)
-                    accs.append(acc)
-                train_acc, val_acc, tmp_test_acc = accs[0], accs[1], accs[2]
-                if val_acc > best_val_acc:
-                    best_val_acc = val_acc
-                    test_acc = tmp_test_acc
-                logging.info(f'Epoch: {epoch:03d}, Loss: {loss:.4f}, Train: {train_acc:.4f}, '
-                             f'Val: {best_val_acc:.4f}, Test: {test_acc:.4f}')
+                    model.eval()
+                    logits = model(data)
+                    accs = []
+                    for _, mask in data('train_mask', 'val_mask', 'test_mask'):
+                        acc = model.test_model(logits, data.y, mask)
+                        accs.append(acc)
+                    train_acc, val_acc, tmp_test_acc = accs[0], accs[1], accs[2]
+                    if val_acc > best_val_acc:
+                        best_val_acc = val_acc
+                        test_acc = tmp_test_acc
+                    logging.info(f'Epoch: {epoch:03d}, Loss: {loss:.4f}, Train: {train_acc:.4f}, '
+                                 f'Val: {best_val_acc:.4f}, Test: {test_acc:.4f}')
 
-        return model
+            return model
 
     else:
         logging.error("Not implemented setting. Please set setting=='node_emb_publish' or 'black_box'.")

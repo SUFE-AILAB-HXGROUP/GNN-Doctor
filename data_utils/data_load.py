@@ -23,8 +23,11 @@ def load_dataset(dataset_name, setting, attack_name):
             return dataset
     elif setting == 'black_box':
         if dataset_name in ['Cora', 'Citeseer', 'PubMed']:
-            transform = T.Compose([T.NormalizeFeatures()])
-            dataset = datasets.Planetoid('datasets', dataset_name, transform=transform)
+            if attack_name == 'membership_infer':
+                dataset = datasets.Planetoid('datasets', dataset_name, split='random')
+            else:
+                transform = T.Compose([T.NormalizeFeatures()])
+                dataset = datasets.Planetoid('datasets', dataset_name, transform=transform)
 
             return dataset
 

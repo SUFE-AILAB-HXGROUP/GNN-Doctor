@@ -15,7 +15,7 @@ Privacy Risk Assessment of Graph Neural Networks.
 ## Black-box Access to GNNs:
 :heavy_check_mark: Link Inference Attacks (attack-0)
 
-:x: Attribute Inference Attacks
+:heavy_check_mark: Attribute Inference Attacks
 
 :heavy_check_mark: Membership Inference Attacks (TSTF and TSTS setting)
 

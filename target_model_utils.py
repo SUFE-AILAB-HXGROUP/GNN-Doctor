@@ -49,11 +49,10 @@ def target_model_train(dataset, setting, attack, target_model, epochs, device):
             if target_model == 'gcn':
                 data = dataset[0]
                 data.to(device)
-                model = GCN(input_dim=dataset.num_features, hidden_dim=128, output_dim=dataset.num_classes).to(device)
-                optimizer = torch.optim.Adam([
-                    dict(params=model.conv1.parameters(), weight_decay=5e-4),
-                    dict(params=model.conv2.parameters(), weight_decay=0)
-                ], lr=0.01)
+                num_features = data.x.size(1)
+                num_classes = len(set(data.y.cpu().numpy()))
+                model = GCN(input_dim=num_features, hidden_dim=128, output_dim=num_classes).to(device)
+                optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
                 best_val_acc = test_acc = 0
                 for epoch in range(1, epochs + 1):
                     model.train()

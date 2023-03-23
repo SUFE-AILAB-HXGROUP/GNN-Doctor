@@ -13,8 +13,8 @@ if __name__ == '__main__':
     parser.add_argument('--device', type=str, default='cuda:0')
     parser.add_argument('--setting', type=str, default='black_box',
                         help="black-box GNNs or node embedding publishing")
-    parser.add_argument('--dataset', type=str, default='Cora')
-    parser.add_argument('--attack', type=str, default='membership_infer')
+    parser.add_argument('--dataset', type=str, default='pokec_n')
+    parser.add_argument('--attack', type=str, default='attr_infer')
     parser.add_argument('--seed', type=int, default=42)
     parser.add_argument('--target-model', type=str, default='gcn')
     parser.add_argument('--hidden-dim', type=int, default=128)

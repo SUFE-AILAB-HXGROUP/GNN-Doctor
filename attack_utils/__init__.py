@@ -2,6 +2,7 @@ from .link_steal import *
 from .link_infer import *
 from .mia_emb import *
 from .mia_bb import *
+from .attri_infer_bb import *
 from .attack_models import *
 
 from torch_geometric.utils import to_dense_adj
@@ -88,7 +89,7 @@ def attack_func(dataset, model, setting, attack_method, attack_epoch, device):
             write_auc(sim_list_target, label_list, desc="target posterior similarity")
 
         elif attack_method == 'attr_infer':
-            logging.info("To be implemented.")
+            attr_infer_bb_func(dataset, model, device, attack_epoch)
         elif attack_method == 'membership_infer':
             mia_attack_mode = "TSTF"   # "TSTF" or "TSTS"
             mia_bb_func(dataset, mia_attack_mode, device)

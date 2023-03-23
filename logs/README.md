@@ -34,3 +34,8 @@
 - Integrate code: Membership Inference Attacks (node embedding publishing & black-box)
 - To be implemented: attribute inference attacks (black-box) (expected 2022/3/24)
 - To be implemented: model inversion attacks
+
+**2023/3/23**
+
+- Upload black-box attribute inference code
+- To be implemented: GCL algs, model inversion attacks, property inference attacks

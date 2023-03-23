@@ -1,7 +1,9 @@
 import logging
 
-from torch_geometric import datasets
 import torch_geometric.transforms as T
+from torch_geometric import datasets
+
+from .data_process import pokec_process
 
 
 def load_dataset(dataset_name, setting, attack_name):
@@ -29,6 +31,9 @@ def load_dataset(dataset_name, setting, attack_name):
                 transform = T.Compose([T.NormalizeFeatures()])
                 dataset = datasets.Planetoid('datasets', dataset_name, transform=transform)
 
+            return dataset
+        elif dataset_name in ['pokec_z', 'pokec_n']:
+            dataset = pokec_process(dataset_name)
             return dataset
 
     else:
